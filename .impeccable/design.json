@@ -1,0 +1,385 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-15T02:50:33+00:00",
+  "title": "Design System: CONTACT",
+  "extensions": {
+    "colorMeta": {
+      "bench": {
+        "role": "neutral",
+        "displayName": "Bench Black",
+        "canonical": "oklch(21.4% 0.004 84.6)",
+        "tonalRamp": [
+          "#0C0B09",
+          "#252422",
+          "#41403D",
+          "#5F5D5B",
+          "#7E7D7A",
+          "#9F9E9B",
+          "#C5C4C1",
+          "#F0EEEB"
+        ],
+        "purpose": "Window ground behind the sheet, launch and developing screens; Bench sheet style ground."
+      },
+      "film": {
+        "role": "neutral",
+        "displayName": "Film Black",
+        "canonical": "oklch(15.5% 0.003 67.6)",
+        "tonalRamp": [
+          "#0C0B0A",
+          "#252423",
+          "#413F3E",
+          "#5F5D5C",
+          "#7E7D7B",
+          "#9F9E9D",
+          "#C5C4C2",
+          "#F0EEEC"
+        ],
+        "purpose": "Film strips, full-screen ground, launch caption block, banner, 72-78% scrims."
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Proof Paper",
+        "canonical": "oklch(94.1% 0.012 84.6)",
+        "tonalRamp": [
+          "#0D0B06",
+          "#27241E",
+          "#433F39",
+          "#615D56",
+          "#807D76",
+          "#A29E97",
+          "#C7C4BC",
+          "#F2EEE6"
+        ],
+        "purpose": "Proof sheet ground, primary ink on dark grounds, fill of the primary block."
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Sheet Ink",
+        "canonical": "oklch(27.5% 0.007 67.5)",
+        "tonalRamp": [
+          "#0D0B08",
+          "#262320",
+          "#423F3C",
+          "#605D59",
+          "#807C79",
+          "#A19E9A",
+          "#C7C3BF",
+          "#F2EEEA"
+        ],
+        "purpose": "Type set on the paper sheet."
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Muted Sheet Ink",
+        "canonical": "oklch(51.5% 0.012 81.8)",
+        "tonalRamp": [
+          "#0E0B06",
+          "#27241E",
+          "#433F39",
+          "#615D56",
+          "#817D75",
+          "#A29E96",
+          "#C8C3BC",
+          "#F2EEE6"
+        ],
+        "purpose": "Secondary type on paper, 4.8:1."
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "rgba(239, 235, 227, 0.14)",
+        "tonalRamp": [
+          "#0D0B06",
+          "#27241E",
+          "#433F39",
+          "#615D56",
+          "#807D76",
+          "#A29E97",
+          "#C7C4BC",
+          "#F2EEE6"
+        ],
+        "purpose": "Paper at 14%: one-pixel rules on bench and film.",
+        "note": "Paper at 14% opacity; ramp is paper's."
+      },
+      "wax": {
+        "role": "neutral",
+        "displayName": "Wax White",
+        "canonical": "oklch(95.5% 0.014 93.0)",
+        "tonalRamp": [
+          "#0D0B05",
+          "#26241D",
+          "#424038",
+          "#605E55",
+          "#807D74",
+          "#A19E95",
+          "#C7C4BA",
+          "#F1EEE4"
+        ],
+        "purpose": "The drawn wax-box mark."
+      },
+      "safelight": {
+        "role": "primary",
+        "displayName": "Safelight Red",
+        "canonical": "oklch(57.1% 0.209 29.5)",
+        "tonalRamp": [
+          "#210000",
+          "#4B0000",
+          "#7C0301",
+          "#B00C04",
+          "#DE3325",
+          "#F96C5A",
+          "#FDAC9F",
+          "#FEE9E5"
+        ],
+        "purpose": "Grease-pencil marks only, never a fill."
+      },
+      "edge-color": {
+        "role": "tertiary",
+        "displayName": "Colour-stock Orange",
+        "canonical": "oklch(74.6% 0.140 68.1)",
+        "tonalRamp": [
+          "#170600",
+          "#371D00",
+          "#5A3704",
+          "#82510C",
+          "#AE6C02",
+          "#D78C28",
+          "#FBB462",
+          "#FEEBD7"
+        ],
+        "purpose": "Edge printing on colour rolls; film rebate only."
+      },
+      "edge-mono": {
+        "role": "tertiary",
+        "displayName": "Mono-stock White",
+        "canonical": "oklch(91.7% 0.014 84.6)",
+        "tonalRamp": [
+          "#0E0B05",
+          "#27241C",
+          "#433F37",
+          "#615D55",
+          "#817D74",
+          "#A39E94",
+          "#C8C4BA",
+          "#F3EEE4"
+        ],
+        "purpose": "Edge printing on B&W rolls; film rebate only."
+      }
+    },
+    "typographyMeta": {
+      "wordmark": {
+        "displayName": "Wordmark",
+        "purpose": "Archivo ExtraCondensed Black (wdth 62, wght 900). The CONTACT name only."
+      },
+      "display": {
+        "displayName": "Display",
+        "purpose": "Big light numerals and states, 96-220pt, wght 300."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Launch index shoot names, empty-state titles; 40pt wght 380."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Caption-block and roll-header shoot names, banner headline; 20-30pt wght 400-430."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Rare sentences: empty-state reasons, banner detail; paper 55-65%."
+      },
+      "typed": {
+        "displayName": "Typed",
+        "purpose": "Proof sheet style roll title and place/date only (SemiCondensed 500-650). Part of the open sheet-style decision."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Caps labels, column heads, caption-grid keys; SemiCondensed bold, tracked 0.08em."
+      },
+      "button": {
+        "displayName": "Button",
+        "purpose": "Block button labels; 15pt large, 12pt small, uppercase."
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "Geist Mono: bracketed indexes, counts, files, caption values."
+      }
+    },
+    "shadows": [
+      {
+        "name": "loupe",
+        "value": "0 10px 24px rgba(0,0,0,0.5)",
+        "purpose": "The circular loupe lens floating over the sheet."
+      },
+      {
+        "name": "banner",
+        "value": "0 8px 18px rgba(0,0,0,0.4)",
+        "purpose": "The post-print banner floating at the foot of the bench."
+      }
+    ],
+    "motion": [
+      {
+        "name": "hover-dim",
+        "value": "0ms",
+        "purpose": "Sibling index rows dim to 32% instantly on hover."
+      },
+      {
+        "name": "preview-crossfade",
+        "value": "200ms ease-out",
+        "purpose": "Launch preview frame crossfade; scroll-to-frame."
+      },
+      {
+        "name": "drop-target",
+        "value": "120ms ease-out",
+        "purpose": "Drop frame appears over the window."
+      },
+      {
+        "name": "printing-cover",
+        "value": "250ms ease-out",
+        "purpose": "Bench goes dark while files move."
+      },
+      {
+        "name": "developing-strip",
+        "value": "350ms ease-out",
+        "purpose": "Developing strip frames come up with real scan progress."
+      },
+      {
+        "name": "tally-count",
+        "value": "200ms snappy",
+        "purpose": "Numeric text transition on tally counts."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "launch-split",
+        "value": "1040pt",
+        "purpose": "Below this window width the launch preview half drops away."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Block Button",
+      "kind": "button",
+      "refersTo": "button-block",
+      "description": "The one primary action per screen: a square paper block with a heavy caps label; inverts to an outline under the cursor.",
+      "html": "<button class=\"ds-btn-block\">Choose Folder</button>",
+      "css": ".ds-btn-block { font-family: Archivo, system-ui, sans-serif; font-variation-settings: 'wdth' 87, 'wght' 760; font-size: 15px; text-transform: uppercase; letter-spacing: 0.06em; color: #0D0C0B; background: #EFEBE3; border: 2px solid #EFEBE3; border-radius: 0; padding: 13px 22px; cursor: pointer; } .ds-btn-block:hover, .ds-btn-block:focus-visible { background: transparent; color: #EFEBE3; outline: none; } .ds-btn-block:active { background: rgba(239,235,227,0.8); color: #0D0C0B; } .ds-btn-block:disabled { opacity: 0.35; }"
+    },
+    {
+      "name": "Block Button (small)",
+      "kind": "button",
+      "refersTo": "button-block-small",
+      "description": "The toolbar primary, Print Selects.",
+      "html": "<button class=\"ds-btn-block-sm\">Print Selects</button>",
+      "css": ".ds-btn-block-sm { font-family: Archivo, system-ui, sans-serif; font-variation-settings: 'wdth' 87, 'wght' 760; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #0D0C0B; background: #EFEBE3; border: 1.5px solid #EFEBE3; border-radius: 0; padding: 5px 12px; cursor: pointer; } .ds-btn-block-sm:hover, .ds-btn-block-sm:focus-visible { background: transparent; color: #EFEBE3; outline: none; } .ds-btn-block-sm:active { background: rgba(239,235,227,0.8); color: #0D0C0B; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary actions: the same square drawn as a paper outline; fills under the cursor.",
+      "html": "<button class=\"ds-btn-outline\">Show All Frames</button>",
+      "css": ".ds-btn-outline { font-family: Archivo, system-ui, sans-serif; font-variation-settings: 'wdth' 87, 'wght' 760; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #EFEBE3; background: transparent; border: 1.5px solid #EFEBE3; border-radius: 0; padding: 5px 12px; cursor: pointer; } .ds-btn-outline:hover, .ds-btn-outline:focus-visible { background: #EFEBE3; color: #0D0C0B; outline: none; } .ds-btn-outline:active { background: rgba(239,235,227,0.8); color: #0D0C0B; }"
+    },
+    {
+      "name": "Label Row",
+      "kind": "custom",
+      "refersTo": "catalogue-label",
+      "description": "Column head: caps label left, live count right, 10pt above a hairline.",
+      "html": "<div class=\"ds-labelrow\"><span>Index</span><span>03 Shoots</span></div>",
+      "css": ".ds-labelrow { display: flex; justify-content: space-between; padding: 0 0 10px; border-bottom: 1px solid rgba(239,235,227,0.14); background: #1A1917; font-family: Archivo, system-ui, sans-serif; font-variation-settings: 'wdth' 87, 'wght' 700; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(239,235,227,0.55); }"
+    },
+    {
+      "name": "Index Row",
+      "kind": "custom",
+      "refersTo": "catalogue-index",
+      "description": "A launch recent: bracketed mono index, two-tone light name, mono count; siblings dim to 32% on hover.",
+      "html": "<div class=\"ds-index\"><a class=\"ds-index-row\" href=\"#\"><span class=\"ds-idx\">[01]</span><span class=\"ds-name\">Coastline<span class=\"ds-tail\"> - Sep 2026</span></span><span class=\"ds-count\">60</span></a><a class=\"ds-index-row\" href=\"#\"><span class=\"ds-idx\">[02]</span><span class=\"ds-name\">Harbour<span class=\"ds-tail\"> - Aug 2026</span></span><span class=\"ds-count\">36</span></a></div>",
+      "css": ".ds-index { background: #1A1917; padding: 0 24px; } .ds-index-row { display: flex; align-items: baseline; padding: 16px 0; border-bottom: 1px solid rgba(239,235,227,0.14); text-decoration: none; color: #EFEBE3; } .ds-idx { width: 56px; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; color: rgba(239,235,227,0.55); } .ds-name { flex: 1; font-family: Archivo, system-ui, sans-serif; font-variation-settings: 'wdth' 100, 'wght' 380; font-size: 40px; } .ds-tail { color: rgba(239,235,227,0.4); } .ds-count { font-family: 'Geist Mono', ui-monospace, monospace; font-size: 13px; color: rgba(239,235,227,0.7); } .ds-index:hover .ds-index-row:not(:hover) { opacity: 0.32; } .ds-index-row:focus-visible { outline: 1.5px dashed #EFEBE3; outline-offset: 4px; }"
+    },
+    {
+      "name": "Caption Block",
+      "kind": "card",
+      "refersTo": "caption-block",
+      "description": "The signature checklist entry: index and title, hairline, label/value caption grid, on film black.",
+      "html": "<div class=\"ds-caption\"><div class=\"ds-cap-head\"><span class=\"ds-cap-idx\">[01]</span><span class=\"ds-cap-title\">Coastline - Sep 2026</span></div><dl class=\"ds-grid\"><dt>Frames</dt><dd>60</dd><dt>Starred</dt><dd>4</dd><dt>Selects</dt><dd>12</dd><dt>Rejects</dt><dd>—</dd></dl></div>",
+      "css": ".ds-caption { width: 340px; background: #0D0C0B; padding: 20px 24px 22px; border-radius: 0; } .ds-cap-head { display: flex; align-items: baseline; gap: 14px; padding-bottom: 14px; border-bottom: 1px solid rgba(239,235,227,0.14); } .ds-cap-idx { font-family: 'Geist Mono', ui-monospace, monospace; font-size: 13px; color: rgba(239,235,227,0.55); } .ds-cap-title { font-family: Archivo, system-ui, sans-serif; font-variation-settings: 'wdth' 100, 'wght' 420; font-size: 24px; color: #EFEBE3; } .ds-grid { display: grid; grid-template-columns: 76px 1fr; column-gap: 14px; row-gap: 6px; margin: 14px 0 0; } .ds-grid dt { font-family: Archivo, system-ui, sans-serif; font-variation-settings: 'wdth' 87, 'wght' 700; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(239,235,227,0.55); } .ds-grid dd { margin: 0; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; color: #EFEBE3; }"
+    },
+    {
+      "name": "Banner",
+      "kind": "custom",
+      "refersTo": "banner",
+      "description": "Post-print report: a square film block at the foot of the bench with an outline action.",
+      "html": "<div class=\"ds-banner\"><div><div class=\"ds-ban-title\">Printed 12 selects</div><div class=\"ds-ban-detail\">3 rejects moved. Nothing deleted.</div></div><button class=\"ds-ban-btn\">Reveal Selects</button></div>",
+      "css": ".ds-banner { display: inline-flex; align-items: center; gap: 28px; padding: 16px 22px; background: #0D0C0B; border: 1px solid rgba(239,235,227,0.22); border-radius: 0; box-shadow: 0 8px 18px rgba(0,0,0,0.4); } .ds-ban-title { font-family: Archivo, system-ui, sans-serif; font-variation-settings: 'wdth' 100, 'wght' 430; font-size: 20px; color: #EFEBE3; } .ds-ban-detail { margin-top: 6px; font-family: Archivo, system-ui, sans-serif; font-size: 13px; color: rgba(239,235,227,0.65); } .ds-ban-btn { font-family: Archivo, system-ui, sans-serif; font-variation-settings: 'wdth' 87, 'wght' 760; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #EFEBE3; background: transparent; border: 1.5px solid #EFEBE3; border-radius: 0; padding: 5px 12px; } .ds-ban-btn:hover, .ds-ban-btn:focus-visible { background: #EFEBE3; color: #0D0C0B; outline: none; }"
+    },
+    {
+      "name": "Grease-Pencil Select Mark",
+      "kind": "custom",
+      "refersTo": "safelight",
+      "description": "The only red: a hand-drawn overshooting loop over a frame, core stroke 90% with a 35% offset ghost.",
+      "html": "<div class=\"ds-mark\"><div class=\"ds-mark-frame\"></div><svg class=\"ds-mark-loop\" viewBox=\"0 0 200 140\"><path d=\"M40 30 C 90 4, 170 10, 186 60 C 198 108, 120 136, 60 124 C 10 112, 4 60, 46 34 C 70 20, 96 18, 112 20\" fill=\"none\" stroke=\"rgba(215,43,30,0.9)\" stroke-width=\"5\" stroke-linecap=\"round\"/><path d=\"M41 31 C 91 5, 171 11, 187 61 C 199 109, 121 137, 61 125 C 11 113, 5 61, 47 35\" fill=\"none\" stroke=\"rgba(215,43,30,0.35)\" stroke-width=\"2.2\" stroke-linecap=\"round\" transform=\"translate(0.9 0.6)\"/></svg></div>",
+      "css": ".ds-mark { position: relative; width: 200px; height: 140px; background: #EFEBE3; } .ds-mark-frame { position: absolute; inset: 20px 18px; background: #141312; } .ds-mark-loop { position: absolute; inset: 0; width: 100%; height: 100%; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Exhibition Checklist",
+    "overview": "CONTACT is a darkroom bench read as a catalogue. Every shoot, roll and frame is an indexed entry (`[01]`, `R01`, frame `3`) set in grotesk on one-pixel hairlines, with a label/value caption block beside it, the way a Swiss exhibition checklist or the A24 index lists its works. The photographs and the film they sit on are the only pictures; everything else is type, rules and flat black and paper.\n\nThe world is black and white: bench black and film black for grounds, cream proof paper and paper-white ink, hairlines of paper at 14%. The one hue is safelight red, and it belongs to the grease pencil. Density is generous at the edges (56pt margins) and tight inside a caption (6pt row spacing), so the eye moves between big light numerals and small tracked caps without middle sizes competing. The mood is brutalist, bold and editorial, after Magnum contact sheets, Swiss catalogue layouts and the A24 index; it rejects the category default of a rounded dark photo app with a thumbnail sidebar, pill buttons and an accent colour.\n\nMotion carries no decoration. Hovering a row dims its siblings instantly; the launch preview crossfades in 200ms; a fresh mark draws on stroke by stroke like a real pencil. The contact sheet is set catalogue-style (see Components ▸ Sheet).",
+    "keyCharacteristics": [
+      "Black and white grounds; red only in grease-pencil marks.",
+      "The catalogue checklist: bracketed mono indexes, caps labels, label/value caption grids, one-pixel hairlines.",
+      "Archivo in three registers plus Geist Mono for data; SF Pro only inside native controls.",
+      "Every UI edge square; one primary action per screen as a paper block.",
+      "Flat: depth comes from black-on-black value steps and hairlines, not shadows."
+    ],
+    "rules": [
+      {
+        "name": "The Pencil Owns Red Rule",
+        "body": "Safelight red is drawn, never filled. No red buttons, fields, badges, alerts or progress; the printing state goes dark and says so in type.",
+        "section": "colors"
+      },
+      {
+        "name": "The Black on Black Rule",
+        "body": "Separation on dark grounds comes from the bench/film step and paper hairlines, not from greys or tints of a hue.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Name Rule",
+        "body": "The ExtraCondensed Black cut sets \"CONTACT\" and nothing else.",
+        "section": "typography"
+      },
+      {
+        "name": "The Numbers Are Light Rule",
+        "body": "A big number is set wide and light (wght 300–420), never bold; weight goes to the small caps beside it.",
+        "section": "typography"
+      },
+      {
+        "name": "The Native Chrome Rule",
+        "body": "SF Pro appears only where macOS draws it: the title bar, the toolbar's toggles and back button, alerts and menus. Never in app-drawn content. No handwriting face anywhere; the drawn marks are the only handwriting.",
+        "section": "typography"
+      },
+      {
+        "name": "The Floats Only Rule",
+        "body": "Only a floating overlay casts a shadow; nothing resting on the bench or the sheet does. No glow.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** index every shoot, roll and frame as a checklist entry: bracketed mono index, caps label, label/value caption on hairlines.",
+      "**Do** keep one primary action per screen as a square paper block; make every other action a square outline or a plain caps label.",
+      "**Do** set big numbers wide and light (wght 300–420) and put weight in the small tracked caps beside them.",
+      "**Do** separate dark surfaces with the bench/film value step and paper hairlines at 14%.",
+      "**Do** head a column with a label row that carries a column name or a live count, 10pt above its hairline.",
+      "**Do** design sheet changes against all three sheet styles while the style is undecided."
+    ],
+    "donts": [
+      "**Don't** use safelight red anywhere but drawn grease-pencil marks: no red buttons, fields, badges or alerts.",
+      "**Don't** round UI edges, use pill buttons, glow, or decorative gradients; rounding belongs only to film, sprocket holes and the loupe.",
+      "**Don't** set any word but \"CONTACT\" in the ExtraCondensed Black cut, or use a handwriting typeface.",
+      "**Don't** use SF Pro in app-drawn content; it belongs to native controls only.",
+      "**Don't** add a thumbnail sidebar, an accent colour, or shadows under anything that rests on the bench.",
+      "**Don't** put a caps label above a headline only to introduce it; labels name columns or report state.",
+      "**Don't** show a client's frames in any brand or review material; use the people-free demo shoot."
+    ]
+  }
+}
