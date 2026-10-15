@@ -54,6 +54,16 @@ final class ShootModel {
     var reprint = false { didSet { revealFocus() } }
     var uprightVerticals = false
     var zoom: CGFloat = 1
+    /// A zoom asked for from the keyboard or menu; the sheet animates to it and then commits it to `zoom`.
+    struct ZoomRequest: Equatable {
+        var target: CGFloat
+        var id = UUID()
+    }
+    var zoomRequest: ZoomRequest?
+
+    func requestZoom(_ target: CGFloat) {
+        zoomRequest = ZoomRequest(target: SheetZoom.clamp(target))
+    }
     /// Set when focus moves by keyboard, so the sheet scrolls to follow it (clicks don't scroll).
     private(set) var scrollTarget: String?
 
@@ -63,6 +73,7 @@ final class ShootModel {
     var failures: [String] = []
 
     let loupe = LoupeState()
+    @ObservationIgnored let sheetPointer = SheetPointer()
 
     @ObservationIgnored private var saveTask: Task<Void, Never>?
     @ObservationIgnored private var bannerTask: Task<Void, Never>?
@@ -193,9 +204,20 @@ final class ShootModel {
 
     /// The cursor resting on a frame makes it the one the keys act on. Arrow keys carry on from there.
     func hoverFocus(_ id: String) {
-        guard fullscreenID == nil, focusedID != id else { return }
+        guard fullscreenID == nil, focusedID != id, !Self.ignoresHover else { return }
         focusedID = id
     }
+
+    /// True while a value typed onto the sheet (location, stock) is being edited. Hover and the marking keys
+    /// leave the keyboard alone until it ends, then focus goes straight back to the sheet.
+    var isEditingText = false {
+        didSet { if oldValue && !isEditingText { refocusSheet += 1 } }
+    }
+    /// Bumped when an edit ends, so the sheet takes the keyboard back without a click.
+    private(set) var refocusSheet = 0
+
+    /// The self-check's click tests turn hover-focus off, so the real pointer resting on the window can't move focus.
+    private static let ignoresHover = ProcessInfo.processInfo.environment["PROOF_NOHOVER"] != nil
 
     /// One level up: full screen back to the sheet, the sheet back to the index.
     func goBack() {

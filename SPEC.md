@@ -42,7 +42,7 @@ Every subfolder with images becomes its own roll(s):
 ### Sheet styling
 
 - Cream paper, black strips, slight skew (< 0.5° on screen). Fixed page layout — the page scales to the window; pinch / ⌘+ / ⌘− zoom.
-- Roll header, set like a catalogue entry: `R01` large, the shoot name on the right with `<Month YYYY>` beneath (from EXIF), then ruled columns: Folder (the shoot folder when the roll sits at its root), Place (typed inline, once per shoot), Format, Frames, and Stock (lab rolls, typed inline) or Camera (digital).
+- Roll header, set like a catalogue entry: `R01` large, the shoot name on the right with `<Month YYYY>` beneath (from EXIF), then ruled columns: Folder (the shoot folder when the roll sits at its root), Location (typed inline, once per shoot; clicking selects the current text, Esc cancels), Format, Frames, and Stock (lab rolls, typed inline) or Camera (digital).
 - Edge printing: `R01`, frame numbers `12 ▶` and `12A` in a condensed face.
   - Digital: camera model + ISO from EXIF (`RICOH GR IV · ISO 800`).
   - Film: `FILM · SAFETY FILM`, where `FILM` is an editable per-roll stock name.

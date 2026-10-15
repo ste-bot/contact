@@ -106,9 +106,10 @@ struct RollHeaderRow: View {
             HStack(alignment: .firstTextBaseline, spacing: 40 * unit) {
                 column("Folder", folder.uppercased(), flexible: true)
                 VStack(alignment: .leading, spacing: 5 * unit) {
-                    CatalogueLabel("Place", size: 10 * unit, color: Theme.inkMuted)
-                    InlineField(value: model.location, placeholder: "ADD PLACE", unit: unit,
-                                help: "Where the shoot was made; printed on every roll. Click to edit.") { model.location = $0 }
+                    CatalogueLabel("Location", size: 10 * unit, color: Theme.inkMuted)
+                    InlineField(value: model.location, placeholder: "ADD LOCATION", unit: unit,
+                                help: "Where the shoot was made; shown on every roll. Click to edit.",
+                                editing: { model.isEditingText = $0 }) { model.location = $0 }
                 }
                 column("Format", formatName)
                 column("Frames", String(format: "%02d", roll.frames.count))
@@ -116,7 +117,8 @@ struct RollHeaderRow: View {
                     VStack(alignment: .leading, spacing: 5 * unit) {
                         CatalogueLabel("Stock", size: 10 * unit, color: Theme.inkMuted)
                         InlineField(value: model.stock(for: roll), placeholder: "FILM", unit: unit,
-                                    help: "The film stock printed on the edge of this roll. Click to edit.") { model.setStock($0, for: roll) }
+                                    help: "The film stock printed on the edge of this roll. Click to edit.",
+                                    editing: { model.isEditingText = $0 }) { model.setStock($0, for: roll) }
                     }
                 } else {
                     column("Camera", camera)
@@ -140,51 +142,67 @@ struct RollHeaderRow: View {
     }
 }
 
-/// A value typed straight onto the sheet (the shoot's place, a lab roll's film stock): plain mono with an
-/// underline until clicked. The text field only exists while editing, so it can never take the sheet's S/F/X
-/// keys when the sheet loads. Commits on Return or when focus leaves.
+/// A value typed straight onto the sheet (the shoot's location, a lab roll's film stock): plain mono with an
+/// underline until clicked. Clicking opens it with the current text selected, so typing replaces it at once.
+/// Return, Tab or clicking away keeps the edit; Esc puts the old value back. The text field only exists while
+/// editing, so it can never take the sheet's S/F/X keys, and the sheet gets the keyboard back when it ends.
 @MainActor
 struct InlineField: View {
     let value: String
     let placeholder: String
     let unit: CGFloat
     let help: String
+    /// Told when editing starts and ends.
+    var editing: (Bool) -> Void = { _ in }
     let commit: (String) -> Void
     @State private var text = ""
-    @State private var editing = false
+    @State private var isEditing = false
     @FocusState private var focused: Bool
 
     var body: some View {
         Group {
-            if editing {
+            if isEditing {
                 TextField(placeholder, text: $text)
                     .textFieldStyle(.plain)
                     .focused($focused)
                     .fixedSize()
-                    .frame(minWidth: 60 * unit, alignment: .leading)
+                    .frame(minWidth: 80 * unit, alignment: .leading)
                     .tint(Theme.ink)
-                    .onAppear { focused = true }
-                    .onSubmit { finish() }
-                    .onChange(of: focused) { _, isFocused in if !isFocused { finish() } }
+                    .onAppear {
+                        focused = true
+                        // Select what's there once the field editor exists, so the first keystroke replaces it.
+                        DispatchQueue.main.async { NSApp.sendAction(#selector(NSText.selectAll(_:)), to: nil, from: nil) }
+                    }
+                    .onSubmit { finish(keep: true) }
+                    .onExitCommand { finish(keep: false) }
+                    .onChange(of: focused) { _, isFocused in if !isFocused { finish(keep: true) } }
             } else {
                 Text(text.isEmpty ? placeholder : text.uppercased())
                     .foregroundStyle(text.isEmpty ? Theme.inkMuted : Theme.ink)
                     .underline(true, color: Theme.inkMuted.opacity(0.5))
                     .lineLimit(1)
                     .contentShape(Rectangle())
-                    .onTapGesture { editing = true }
+                    .onTapGesture { begin() }
             }
         }
         .font(Theme.mono(12 * unit))
         .tracking(0.3 * unit)
         .onAppear { text = value }
-        .onChange(of: value) { _, newValue in if !editing { text = newValue } }
+        .onChange(of: value) { _, newValue in if !isEditing { text = newValue } }
         .help(help)
     }
 
-    private func finish() {
-        commit(text.trimmingCharacters(in: .whitespaces))
-        editing = false
+    private func begin() {
+        text = value
+        isEditing = true
+        editing(true)
+    }
+
+    private func finish(keep: Bool) {
+        guard isEditing else { return }
+        if keep { commit(text.trimmingCharacters(in: .whitespaces)) } else { text = value }
+        isEditing = false
+        editing(false)
     }
 }
 
@@ -391,7 +409,8 @@ struct FrameCell: View {
     /// Verticals lie sideways in a landscape frame, the way a portrait sits on film.
     private var isSideways: Bool { frame.info.isVertical && !model.uprightVerticals && size.width > size.height }
     private var isLetterboxed: Bool { frame.info.isVertical && model.uprightVerticals }
-    private var pixelSize: Int { ImageStore.thumbnailSize(forPoints: max(size.width, size.height)) }
+    /// Thumbnails are decoded for the size on screen, which grows with zoom.
+    private var pixelSize: Int { ImageStore.thumbnailSize(forPoints: max(size.width, size.height) * max(1, model.zoom)) }
 
     var body: some View {
         ZStack {
@@ -418,16 +437,14 @@ struct FrameCell: View {
                     .padding(-4)
             }
         }
-        .contentShape(Rectangle())
-        .onTapGesture(count: 2) { model.doubleClick(frame.id) }
-        .onTapGesture { model.click(frame.id) }
-        .onContinuousHover { phase in
-            switch phase {
-            case .active(let location):
-                model.hoverFocus(frame.id)
-                model.loupe.hover = LoupeState.Hover(frameID: frame.id, point: uprightPoint(location))
-            case .ended:
-                if model.loupe.hover?.frameID == frame.id { model.loupe.hover = nil }
+        // Hover, clicks and the loupe go through SheetPointer, which hit-tests correctly when zoomed.
+        .background {
+            GeometryReader { geometry in
+                let rect = geometry.frame(in: .named(SheetPointer.space))
+                Color.clear
+                    .onAppear { model.sheetPointer.register(frame.id, rect: rect, upright: uprightPoint) }
+                    .onChange(of: rect) { _, rect in model.sheetPointer.register(frame.id, rect: rect, upright: uprightPoint) }
+                    .onDisappear { model.sheetPointer.unregister(frame.id) }
             }
         }
         .task(id: "\(frame.display.url.path)|\(pixelSize)") {

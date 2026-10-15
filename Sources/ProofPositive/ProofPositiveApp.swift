@@ -84,11 +84,11 @@ struct ProofCommands: Commands {
             Button(app.shoot?.uprightVerticals == true ? "Lay Verticals Sideways" : "Upright Verticals") { app.shoot?.uprightVerticals.toggle() }
                 .keyboardShortcut("u")
             Divider()
-            Button("Zoom In") { app.shoot.map { $0.zoom = min($0.zoom * 1.25, 3) } }
+            Button("Zoom In") { app.shoot.map { $0.requestZoom($0.zoom * SheetZoom.step) } }
                 .keyboardShortcut("=")
-            Button("Zoom Out") { app.shoot.map { $0.zoom = max($0.zoom / 1.25, 0.6) } }
+            Button("Zoom Out") { app.shoot.map { $0.requestZoom($0.zoom / SheetZoom.step) } }
                 .keyboardShortcut("-")
-            Button("Fit Width") { app.shoot?.zoom = 1 }
+            Button("Fit Width") { app.shoot?.requestZoom(1) }
                 .keyboardShortcut("0")
             Divider()
         }

@@ -7,7 +7,9 @@ import ProofCore
 ///     PROOF_SELFCHECK=/tmp/out PROOF_STEPS="snap:sheet;mark:3:select;snap:marked;quit" ProofPositive <shoot>
 ///
 /// Steps: `wait:<seconds>`, `snap:<name>`, `open:<folder>`, `focus:<n>`, `mark:<n>:<select|hero|reject|clear>`, `reprint`,
-/// `upright`, `zoom:<x>`, `fullscreen`, `close`, `loupe:<n>:<x>,<y>`, `macfullscreen`, `index`, `windowinfo` (prints the window style flags), `print`, `undo`, `quit`.
+/// `upright`, `zoom:<x>`, `fullscreen`, `close`, `loupe:<n>:<x>,<y>`, `macfullscreen`, `index`, `windowinfo` (prints the window style flags), `zoominfo`,
+/// `clickat:<x>,<y>` / `hoverat:<x>,<y>` (synthetic pointer events in window points; set PROOF_NOHOVER=1 so the real
+/// pointer resting on the window can't move focus), `print`, `undo`, `quit`.
 /// `<n>` is the 1-based frame index on the sheet.
 @MainActor
 enum SelfCheck {
@@ -37,6 +39,45 @@ enum SelfCheck {
             try? await Task.sleep(for: .seconds(2))
             return
         case "index": AppModel.shared.close(); try? await Task.sleep(for: .seconds(1)); return
+        case "hoverat":
+            // A synthetic mouse move at a point in the window (points from the top-left), to check hit-testing.
+            let xy = parts[1].split(separator: ",").compactMap { Double($0) }
+            if let window = NSApp.windows.first(where: { $0.isVisible }), xy.count == 2 {
+                let location = NSPoint(x: xy[0], y: window.contentView!.bounds.height - xy[1])
+                for dx in [0.0, 1.0] {
+                    if let event = NSEvent.mouseEvent(with: .mouseMoved, location: NSPoint(x: location.x + dx, y: location.y), modifierFlags: [],
+                                                      timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: window.windowNumber,
+                                                      context: nil, eventNumber: 0, clickCount: 0, pressure: 0) {
+                        NSApp.sendEvent(event)
+                    }
+                }
+            }
+            try? await Task.sleep(for: .milliseconds(300))
+            print("HOVER at=\(parts[1]) focused=\(AppModel.shared.shoot?.focusedID ?? "nil") loupe=\(String(describing: AppModel.shared.shoot?.loupe.hover))")
+            return
+        case "clickat":
+            let xy = parts[1].split(separator: ",").compactMap { Double($0) }
+            if let window = NSApp.windows.first(where: { $0.isVisible }), xy.count == 2 {
+                NSApp.activate(ignoringOtherApps: true)
+                window.makeKeyAndOrderFront(nil)
+                try? await Task.sleep(for: .milliseconds(200))
+                let location = NSPoint(x: xy[0], y: window.contentView!.bounds.height - xy[1])
+                for type in [NSEvent.EventType.leftMouseDown, .leftMouseUp] {
+                    if let event = NSEvent.mouseEvent(with: type, location: location, modifierFlags: [],
+                                                      timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: window.windowNumber,
+                                                      context: nil, eventNumber: 0, clickCount: 1, pressure: 1) {
+                        NSApp.sendEvent(event)
+                    }
+                }
+            }
+            try? await Task.sleep(for: .milliseconds(500))
+            print("CLICK at=\(parts[1]) focused=\(AppModel.shared.shoot?.focusedID ?? "nil")")
+            return
+        case "zoominfo":
+            if let sv = NSApp.windows.first(where: { $0.isVisible })?.contentView.flatMap(Self.findScrollView) {
+                print("ZOOMINFO magnification=\(sv.magnification) clip=\(sv.contentView.bounds) doc=\(sv.documentView?.frame ?? .zero)")
+            }
+            return
         case "windowinfo":
             for w in NSApp.windows where w.isVisible {
                 print("WINDOW fullSize=\(w.styleMask.contains(.fullSizeContentView)) transparent=\(w.titlebarAppearsTransparent) title=\(w.titleVisibility == .visible) toolbar=\(w.toolbar != nil) toolbarVisible=\(w.toolbar?.isVisible ?? false) style=\(w.toolbarStyle.rawValue) sep=\(w.titlebarSeparatorStyle.rawValue)")
@@ -54,7 +95,7 @@ enum SelfCheck {
             if let f = frame(parts[1]) { model.setMark(Mark(rawValue: parts[2]), for: f.id) }
         case "reprint": model.reprint.toggle()
         case "upright": model.uprightVerticals.toggle()
-        case "zoom": model.zoom = CGFloat(Double(parts[1]) ?? 1)
+        case "zoom": model.requestZoom(CGFloat(Double(parts[1]) ?? 1))
         case "fullscreen": model.openFullscreen()
         case "close": model.fullscreenID = nil
         case "loupe":
@@ -73,6 +114,12 @@ enum SelfCheck {
         default: break
         }
         try? await Task.sleep(for: .milliseconds(1200))
+    }
+
+    private static func findScrollView(_ view: NSView) -> NSScrollView? {
+        if let scroll = view as? NSScrollView, scroll.allowsMagnification { return scroll }
+        for sub in view.subviews { if let found = findScrollView(sub) { return found } }
+        return nil
     }
 
     private static func snapshot(to url: URL) {

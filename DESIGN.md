@@ -133,7 +133,7 @@ CONTACT is a darkroom bench read as a catalogue. Every shoot, roll and frame is 
 
 The world is black and white: bench black and film black for grounds, cream proof paper and paper-white ink, hairlines of paper at 14%. The one hue is safelight red, and it belongs to the grease pencil. Density is generous at the edges (56pt margins) and tight inside a caption (6pt row spacing), so the eye moves between big light numerals and small tracked caps without middle sizes competing. The mood is brutalist, bold and editorial, after Magnum contact sheets, Swiss catalogue layouts and the A24 index; it rejects the category default of a rounded dark photo app with a thumbnail sidebar, pill buttons and an accent colour.
 
-Motion carries no decoration. Hovering a row dims its siblings instantly; the launch preview crossfades in 200ms; a fresh mark draws on stroke by stroke like a real pencil. The contact sheet is set catalogue-style (see Components ▸ Sheet).
+Motion carries no decoration. Hovering a row dims its siblings instantly; the launch preview crossfades in 200ms; zoom is the scroll view's native magnification (pinch tracks the fingers frame by frame; ⌘+/⌘− animate 180ms around the middle), the sheet never re-lays out, thumbnails sharpen once a zoom settles, and the frame under the pointer is found with AppKit coordinates so hover, clicks and the loupe stay exact when zoomed; a fresh mark draws on stroke by stroke like a real pencil. The contact sheet is set catalogue-style (see Components ▸ Sheet).
 
 **Key Characteristics:**
 - Black and white grounds; red only in grease-pencil marks.
@@ -252,7 +252,7 @@ Decided: the Catalogue style. Square cream proof paper on the bench; each roll i
 Treat none of these as the settled sheet. New sheet work must render correctly in all three until the decision is made.
 
 ### Navigation
-None beyond native macOS chrome: the title bar carries the shoot name and a frames/rolls subtitle; the toolbar sits on a flat bench-black bar and carries the ‹ back button (one level up: full screen → sheet → index), the tally, two native toggles and the one block button. The window style is set once (transparent title bar, full-size content) and never switched, so heights hold across screens and in macOS full screen; the launch screen runs edge to edge beneath it. Values typed onto the sheet (Place, Stock) are inline fields in the roll header, underlined mono until clicked.
+None beyond native macOS chrome: the title bar carries the shoot name and a frames/rolls subtitle; the toolbar sits on a flat bench-black bar and carries the ‹ back button (one level up: full screen → sheet → index), the tally, two native toggles and the one block button. The window style is set once (transparent title bar, full-size content) and never switched, so heights hold across screens and in macOS full screen; the launch screen runs edge to edge beneath it. Values typed onto the sheet (Location, Stock) are inline fields in the roll header, underlined mono until clicked; clicking opens them with the text selected, Return/Tab/click-away keeps the edit, Esc reverts, and the sheet takes the keyboard back when the edit ends.
 
 ## Do's and Don'ts
 

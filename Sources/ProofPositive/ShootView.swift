@@ -5,53 +5,10 @@ import SwiftUI
 struct ShootView: View {
     @Bindable var model: ShootModel
     @FocusState private var sheetFocused: Bool
-    @State private var pinchBase: CGFloat?
+    @State private var scroller = SheetScroller()
 
     var body: some View {
-        GeometryReader { geometry in
-            let pageWidth = max(640, (geometry.size.width - 96) * model.zoom)
-            let unit = pageWidth / StripMetrics.pageWidth
-
-            ScrollViewReader { proxy in
-                ScrollView(model.zoom > 1 ? [.vertical, .horizontal] : .vertical) {
-                    LazyVStack(spacing: 0) {
-                        ForEach(model.rows) { row in
-                            switch row {
-                            case .header(let roll): RollHeaderRow(roll: roll, model: model, unit: unit)
-                            case .strip(let roll, let index, let frames): StripRow(roll: roll, index: index, frames: frames, model: model, unit: unit)
-                            case .footer: RollFooterRow(unit: unit)
-                            }
-                        }
-                    }
-                    .padding(.vertical, 48)
-                    .frame(minWidth: geometry.size.width)
-                }
-                .onChange(of: model.scrollTarget) { _, id in
-                    guard let id, let strip = model.stripID(containing: id) else { return }
-                    withAnimation(.easeOut(duration: 0.2)) { proxy.scrollTo(strip) }
-                }
-            }
-        }
-        .background(Theme.bench)
-        .overlay { emptyState }
-        .overlay { FullscreenView(model: model) }
-        .overlay { LoupeOverlay(model: model, loupe: model.loupe) }
-        .overlay(alignment: .bottom) { banner }
-        .overlay { if model.isPrinting { printingCover.transition(.opacity) } }
-        .animation(.easeOut(duration: 0.25), value: model.isPrinting)
-        .coordinateSpace(.named("bench"))
-        .onContinuousHover(coordinateSpace: .named("bench")) { phase in
-            if case .active(let location) = phase { model.loupe.cursor = location }
-        }
-        .simultaneousGesture(
-            MagnifyGesture()
-                .onChanged { value in
-                    let base = pinchBase ?? model.zoom
-                    pinchBase = base
-                    model.zoom = min(max(base * value.magnification, 0.6), 3)
-                }
-                .onEnded { _ in pinchBase = nil }
-        )
+        sheet
         .focusable()
         .focusEffectDisabled()
         .focused($sheetFocused)
@@ -63,7 +20,18 @@ struct ShootView: View {
             try? await Task.sleep(for: .milliseconds(100))
             sheetFocused = true
         }
-        .onChange(of: model.focusedID) { sheetFocused = true }
+        .onChange(of: model.focusedID) { if !model.isEditingText { sheetFocused = true } }
+        .onChange(of: model.refocusSheet) { sheetFocused = true }
+        .onChange(of: model.zoomRequest) { _, request in
+            if let request { scroller.zoom(to: request.target) }
+        }
+        .onAppear {
+            scroller.onMagnification = { [model] in model.zoom = $0 }
+            model.sheetPointer.model = model
+            model.sheetPointer.scroller = scroller
+            model.sheetPointer.install()
+        }
+        .onDisappear { model.sheetPointer.uninstall() }
         // The toolbar sits on the same flat black as the bench, in its own bar above the sheet.
         .toolbarBackground(Theme.bench, for: .windowToolbar)
         .toolbarBackground(.visible, for: .windowToolbar)
@@ -83,6 +51,49 @@ struct ShootView: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text(model.failures.prefix(8).joined(separator: "\n") + (model.failures.count > 8 ? "\n…and \(model.failures.count - 8) more" : ""))
+        }
+    }
+
+    /// The bench: the scrolling sheet, its overlays and the pinch to zoom.
+    private var sheet: some View {
+        GeometryReader { geometry in
+            // Always laid out at fit width; zoom is the scroll view's magnification (SheetZoom).
+            let pageWidth = max(640, geometry.size.width - 96)
+            let unit = pageWidth / StripMetrics.pageWidth
+
+            ScrollViewReader { proxy in
+                ScrollView(.vertical) {
+                    LazyVStack(spacing: 0) {
+                        ForEach(model.rows) { row in
+                            switch row {
+                            case .header(let roll): RollHeaderRow(roll: roll, model: model, unit: unit)
+                            case .strip(let roll, let index, let frames): StripRow(roll: roll, index: index, frames: frames, model: model, unit: unit)
+                            case .footer: RollFooterRow(unit: unit)
+                            }
+                        }
+                    }
+                    .padding(.vertical, 48)
+                    .frame(minWidth: geometry.size.width)
+                    .coordinateSpace(.named(SheetPointer.space))
+                    .background(SheetScrollerAccess(scroller: scroller))
+                }
+
+                .onChange(of: model.scrollTarget) { _, id in
+                    guard let id, let strip = model.stripID(containing: id) else { return }
+                    withAnimation(.easeOut(duration: 0.2)) { proxy.scrollTo(strip) }
+                }
+            }
+        }
+        .background(Theme.bench)
+        .overlay { emptyState }
+        .overlay { FullscreenView(model: model) }
+        .overlay { LoupeOverlay(model: model, loupe: model.loupe) }
+        .overlay(alignment: .bottom) { banner }
+        .overlay { if model.isPrinting { printingCover.transition(.opacity) } }
+        .animation(.easeOut(duration: 0.25), value: model.isPrinting)
+        .coordinateSpace(.named("bench"))
+        .onContinuousHover(coordinateSpace: .named("bench")) { phase in
+            if case .active(let location) = phase { model.loupe.cursor = location }
         }
     }
 
