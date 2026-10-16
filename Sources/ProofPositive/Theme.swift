@@ -46,14 +46,18 @@ enum Theme {
 /// Falls back to a system face if a font isn't installed, so the app never renders blank text.
 enum Typeface {
     static func variable(_ family: String, size: CGFloat, axes: [String: CGFloat], fallback: Font) -> Font {
-        guard NSFontManager.shared.availableMembers(ofFontFamily: family) != nil else { return fallback }
+        nsFont(family, size: size, axes: axes).map(Font.init) ?? fallback
+    }
+
+    /// The same face as an AppKit font, for the few controls drawn by AppKit (the inline editor).
+    static func nsFont(_ family: String, size: CGFloat, axes: [String: CGFloat]) -> NSFont? {
+        guard NSFontManager.shared.availableMembers(ofFontFamily: family) != nil else { return nil }
         let variation = Dictionary(uniqueKeysWithValues: axes.map { (tag($0.key), $0.value) })
         let descriptor = NSFontDescriptor(fontAttributes: [
             .family: family,
             NSFontDescriptor.AttributeName(rawValue: kCTFontVariationAttribute as String): variation,
         ])
-        guard let font = NSFont(descriptor: descriptor, size: size) else { return fallback }
-        return Font(font)
+        return NSFont(descriptor: descriptor, size: size)
     }
 
     /// OpenType axis tags are four ASCII bytes read as one integer: "wght" → 0x77676874.

@@ -7,7 +7,7 @@ import ProofCore
 ///     PROOF_SELFCHECK=/tmp/out PROOF_STEPS="snap:sheet;mark:3:select;snap:marked;quit" ProofPositive <shoot>
 ///
 /// Steps: `wait:<seconds>`, `snap:<name>`, `open:<folder>`, `focus:<n>`, `mark:<n>:<select|hero|reject|clear>`, `reprint`,
-/// `upright`, `zoom:<x>`, `fullscreen`, `close`, `loupe:<n>:<x>,<y>`, `macfullscreen`, `index`, `windowinfo` (prints the window style flags), `zoominfo`,
+/// `upright`, `zoom:<x>`, `fullscreen`, `close`, `loupe:<n>:<x>,<y>`, `macfullscreen`, `index`, `windowinfo` (prints the window style flags), `zoominfo`, `location:<text>`, `type:<text>`, `key:<return|esc|tab>`, `editinfo` (the field editor's text and selection),
 /// `clickat:<x>,<y>` / `hoverat:<x>,<y>` (synthetic pointer events in window points; set PROOF_NOHOVER=1 so the real
 /// pointer resting on the window can't move focus), `print`, `undo`, `quit`.
 /// `<n>` is the 1-based frame index on the sheet.
@@ -72,6 +72,38 @@ enum SelfCheck {
             }
             try? await Task.sleep(for: .milliseconds(500))
             print("CLICK at=\(parts[1]) focused=\(AppModel.shared.shoot?.focusedID ?? "nil")")
+            return
+        case "location":
+            AppModel.shared.shoot?.location = parts.dropFirst().joined(separator: ":")
+            try? await Task.sleep(for: .milliseconds(500))
+            return
+        case "type", "key":
+            // Synthetic keystrokes to the key window: `type:<text>`, or `key:return` / `key:esc` / `key:tab`.
+            guard let window = NSApp.windows.first(where: { $0.isVisible }) else { return }
+            NSApp.activate(ignoringOtherApps: true)
+            window.makeKeyAndOrderFront(nil)
+            let special: [String: (String, UInt16)] = ["return": ("\r", 36), "esc": ("\u{1b}", 53), "tab": ("\t", 48)]
+            let strokes: [(String, UInt16)] = parts[0] == "key" ? [special[parts[1]] ?? ("", 0)] : parts.dropFirst().joined(separator: ":").map { (String($0), 0) }
+            for (chars, code) in strokes {
+                for type in [NSEvent.EventType.keyDown, .keyUp] {
+                    if let event = NSEvent.keyEvent(with: type, location: .zero, modifierFlags: [], timestamp: ProcessInfo.processInfo.systemUptime,
+                                                    windowNumber: window.windowNumber, context: nil, characters: chars,
+                                                    charactersIgnoringModifiers: chars, isARepeat: false, keyCode: code) {
+                        NSApp.sendEvent(event)
+                    }
+                }
+            }
+            try? await Task.sleep(for: .milliseconds(300))
+            print("TYPED \(parts.joined(separator: ":")) location=\(AppModel.shared.shoot?.location ?? "nil")")
+            return
+        case "editinfo":
+            // What the keyboard is in right now: the text and the selected range of the field being edited.
+            let responder = NSApp.windows.first(where: { $0.isVisible })?.firstResponder
+            if let editor = responder as? NSTextView {
+                print("EDIT text=\(editor.string) selected=\(editor.selectedRange()) length=\((editor.string as NSString).length)")
+            } else {
+                print("EDIT responder=\(responder.map { String(describing: type(of: $0)) } ?? "nil")")
+            }
             return
         case "zoominfo":
             if let sv = NSApp.windows.first(where: { $0.isVisible })?.contentView.flatMap(Self.findScrollView) {

@@ -142,10 +142,127 @@ struct RollHeaderRow: View {
     }
 }
 
-/// A value typed straight onto the sheet (the shoot's location, a lab roll's film stock): plain mono with an
-/// underline until clicked. Clicking opens it with the current text selected, so typing replaces it at once.
-/// Return, Tab or clicking away keeps the edit; Esc puts the old value back. The text field only exists while
-/// editing, so it can never take the sheet's S/F/X keys, and the sheet gets the keyboard back when it ends.
+/// How a value typed onto the sheet is set, shared by the label and the editor so switching between them
+/// doesn't move a pixel: Geist Mono, capitals, tracked out.
+struct InlineStyle {
+    let font: NSFont
+    let kern: CGFloat
+
+    init(unit: CGFloat) {
+        font = Typeface.nsFont("Geist Mono", size: 12 * unit, axes: ["wght": 500]) ?? .monospacedSystemFont(ofSize: 12 * unit, weight: .medium)
+        kern = 0.3 * unit
+    }
+
+    func attributes(_ color: Color) -> [NSAttributedString.Key: Any] {
+        [.font: font, .kern: kern, .foregroundColor: NSColor(color)]
+    }
+
+    func width(_ text: String) -> CGFloat {
+        ceil((text as NSString).size(withAttributes: attributes(Theme.ink)).width)
+    }
+
+    var lineHeight: CGFloat { ceil(font.ascender - font.descender + font.leading) }
+}
+
+/// A plain AppKit text field for editing on the sheet. Selects everything on appearing; Return or Tab keeps the
+/// edit, Esc reverts, clicking away keeps it. Types in capitals with the label's tracking, and draws selection and
+/// caret in ink rather than system blue, so editing looks exactly like the label it replaces.
+struct InlineTextEditor: NSViewRepresentable {
+    @Binding var text: String
+    let placeholder: String
+    let style: InlineStyle
+    let end: (_ keep: Bool) -> Void
+
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+
+    func makeNSView(context: Context) -> Field {
+        let field = Field()
+        field.isBordered = false
+        field.isBezeled = false
+        field.drawsBackground = false
+        field.focusRingType = .none
+        // Keep the kerning while editing; a plain field editor would drop it and the text would narrow.
+        field.allowsEditingTextAttributes = true
+        field.font = style.font
+        field.lineBreakMode = .byClipping
+        field.cell?.isScrollable = true
+        field.cell?.usesSingleLineMode = true
+        field.attributedStringValue = NSAttributedString(string: text.uppercased(), attributes: style.attributes(Theme.ink))
+        field.placeholderAttributedString = NSAttributedString(string: placeholder, attributes: style.attributes(Theme.inkMuted))
+        field.typing = style.attributes(Theme.ink)
+        field.delegate = context.coordinator
+        return field
+    }
+
+    func updateNSView(_ field: Field, context: Context) {
+        context.coordinator.parent = self
+    }
+
+    final class Field: NSTextField {
+        var typing: [NSAttributedString.Key: Any] = [:]
+
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            // Next turn of the run loop, once it's in the window: take the keyboard, select everything.
+            DispatchQueue.main.async { [weak self] in
+                guard let self, let window = self.window, window.makeFirstResponder(self) else { return }
+                if let editor = self.currentEditor() as? NSTextView {
+                    editor.typingAttributes = typing
+                    editor.insertionPointColor = NSColor(Theme.ink)
+                    editor.selectedTextAttributes = [.backgroundColor: NSColor(Theme.ink).withAlphaComponent(0.16),
+                                                     .foregroundColor: NSColor(Theme.ink)]
+                    editor.selectAll(nil)
+                }
+            }
+        }
+    }
+
+    final class Coordinator: NSObject, NSTextFieldDelegate {
+        var parent: InlineTextEditor
+        private var ended = false
+
+        init(_ parent: InlineTextEditor) { self.parent = parent }
+
+        /// Capitals as you type, with the label's tracking, keeping the caret where it was.
+        func controlTextDidChange(_ note: Notification) {
+            guard let field = note.object as? Field, let editor = field.currentEditor() as? NSTextView,
+                  let storage = editor.textStorage else { return }
+            let selection = editor.selectedRange()
+            let upper = editor.string.uppercased()
+            if upper != editor.string || storage.length > 0 {
+                storage.beginEditing()
+                storage.replaceCharacters(in: NSRange(location: 0, length: storage.length), with: NSAttributedString(string: upper, attributes: field.typing))
+                storage.endEditing()
+                editor.setSelectedRange(selection)
+            }
+            editor.typingAttributes = field.typing
+            parent.text = upper
+        }
+
+        func control(_ control: NSControl, textView: NSTextView, doCommandBy selector: Selector) -> Bool {
+            switch selector {
+            case #selector(NSResponder.cancelOperation(_:)): finish(keep: false)
+            case #selector(NSResponder.insertNewline(_:)), #selector(NSResponder.insertTab(_:)), #selector(NSResponder.insertBacktab(_:)): finish(keep: true)
+            default: return false
+            }
+            return true
+        }
+
+        /// Clicking away ends editing too, and keeps what was typed.
+        func controlTextDidEndEditing(_ note: Notification) { finish(keep: true) }
+
+        private func finish(keep: Bool) {
+            guard !ended else { return }
+            ended = true
+            parent.end(keep)
+        }
+    }
+}
+
+/// A value typed straight onto the sheet (the shoot's location, a lab roll's film stock): mono capitals with an
+/// underline. Clicking swaps in the editor at exactly the same size and place, with the text selected, so typing
+/// replaces it at once. Return, Tab or clicking away keeps the edit; Esc puts the old value back. The editor only
+/// exists while editing, so it can never take the sheet's S/F/X keys, and the sheet gets the keyboard back after.
 @MainActor
 struct InlineField: View {
     let value: String
@@ -157,36 +274,35 @@ struct InlineField: View {
     let commit: (String) -> Void
     @State private var text = ""
     @State private var isEditing = false
-    @FocusState private var focused: Bool
+
+    /// A borderless AppKit field draws its text flush left, so the editor sits exactly where the label does.
+    private var editorInset: CGFloat { 0 }
 
     var body: some View {
-        Group {
+        let style = InlineStyle(unit: unit)
+        let shown = text.isEmpty ? placeholder : text.uppercased()
+        // One width for both states — wide enough for the placeholder or the text — so nothing reflows on click.
+        let width = max(style.width(placeholder), style.width(shown)) + 2
+        ZStack(alignment: .topLeading) {
             if isEditing {
-                TextField(placeholder, text: $text)
-                    .textFieldStyle(.plain)
-                    .focused($focused)
-                    .fixedSize()
-                    .frame(minWidth: 80 * unit, alignment: .leading)
-                    .tint(Theme.ink)
-                    .onAppear {
-                        focused = true
-                        // Select what's there once the field editor exists, so the first keystroke replaces it.
-                        DispatchQueue.main.async { NSApp.sendAction(#selector(NSText.selectAll(_:)), to: nil, from: nil) }
-                    }
-                    .onSubmit { finish(keep: true) }
-                    .onExitCommand { finish(keep: false) }
-                    .onChange(of: focused) { _, isFocused in if !isFocused { finish(keep: true) } }
+                InlineTextEditor(text: $text, placeholder: placeholder, style: style) { keep in finish(keep: keep) }
+                    .frame(width: width + 2 * editorInset, height: style.lineHeight)
+                    .offset(x: -editorInset)
             } else {
-                Text(text.isEmpty ? placeholder : text.uppercased())
+                Text(shown)
+                    .font(Font(style.font))
+                    .kerning(style.kern)
                     .foregroundStyle(text.isEmpty ? Theme.inkMuted : Theme.ink)
-                    .underline(true, color: Theme.inkMuted.opacity(0.5))
                     .lineLimit(1)
+                    .fixedSize()
                     .contentShape(Rectangle())
                     .onTapGesture { begin() }
             }
         }
-        .font(Theme.mono(12 * unit))
-        .tracking(0.3 * unit)
+        .frame(width: width, height: style.lineHeight, alignment: .topLeading)
+        .overlay(alignment: .bottom) {
+            Rectangle().fill(Theme.inkMuted.opacity(isEditing ? 0.8 : 0.5)).frame(height: 1).offset(y: 1)
+        }
         .onAppear { text = value }
         .onChange(of: value) { _, newValue in if !isEditing { text = newValue } }
         .help(help)

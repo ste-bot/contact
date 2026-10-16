@@ -125,8 +125,19 @@ struct FullscreenView: View {
         var rows: [(label: String, value: String)] = []
         if let roll { rows.append(("Roll", roll.label)) }
         rows.append(("File", frame.fileName))
-        rows.append(("Edge", frame.info.edgeText))
-        if let date = frame.info.captureDate { rows.append(("Date", date.formatted(date: .abbreviated, time: .shortened))) }
+        // A lab scan has no camera in its metadata, and its date is when the lab scanned it, not when it was shot.
+        let isScan = roll?.kind == .lab
+        if isScan, let roll {
+            rows.append(("Stock", model.stock(for: roll).uppercased()))
+        } else {
+            rows.append(("Camera", frame.info.edgeText))
+        }
+        if let date = frame.info.captureDate {
+            // Short enough to fit the column: 16 OCT 2026 · 11:49
+            let day = date.formatted(.dateTime.day().month(.abbreviated).year())
+            let time = date.formatted(.dateTime.hour(.twoDigits(amPM: .omitted)).minute())
+            rows.append((isScan ? "Scanned" : "Date", "\(day) · \(time)".uppercased()))
+        }
         rows.append(("Size", "\(frame.info.pixelWidth) × \(frame.info.pixelHeight)"))
 
         return VStack(alignment: .leading, spacing: 0) {

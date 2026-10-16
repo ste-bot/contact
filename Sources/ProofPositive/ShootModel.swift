@@ -278,7 +278,9 @@ final class ShootModel {
     // MARK: Keyboard
 
     func handle(_ press: KeyPress) -> KeyPress.Result {
-        if press.modifiers.contains(.command) { return .ignored }
+        // While a value is being typed onto the sheet, every key belongs to the field: Return saves it, Esc
+        // reverts it, and S/F/X are letters, not marks.
+        if isEditingText || press.modifiers.contains(.command) { return .ignored }
 
         if press.key == .space {
             loupe.isHeld = press.phase != .up
