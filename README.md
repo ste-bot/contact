@@ -1,3 +1,5 @@
+<img src="docs/icon.png" width="128" alt="The Contact icon: a frame of colour film at dusk, edge-printed CONTACT">
+
 # CONTACT
 
 Cull a shoot on a darkroom contact sheet before anything goes into Lightroom. See [SPEC.md](SPEC.md) for the full design.
@@ -12,13 +14,16 @@ Cull a shoot on a darkroom contact sheet before anything goes into Lightroom. Se
 open "build/Contact.app"
 ```
 
-Copy it to /Applications to keep it in the Dock. `swift run ProofPositive "<shoot folder>"` also works for quick iteration.
+Install it in /Applications to keep it in the Dock. `swift run ProofPositive "<shoot folder>"` also works for quick iteration.
+The icon is drawn by `scripts/make-icon.swift`; `build-app.sh` re-renders it whenever that script changes.
 
 Ratings need exiftool (`brew install exiftool`; it's already at /usr/local/bin on this Mac).
 
 ## Using it
 
 1. Open a shoot folder: ⌘O, drag it onto the window or Dock icon, or pick it from Recent.
+   Recent follows a shoot you rename or move on the same drive. One it can't find says *Moved or renamed*
+   (or *Drive not connected*); click it to locate it, or right-click to remove it.
 2. Mark frames: hover a frame (or move with the arrows) and press `S` select / `F` star / `X` reject / `⌫` clear. Clicking never marks.
    Hold `Space` for the loupe; `Return` or double-click for full screen; ‹ (or `Esc`) goes back a level.
 3. ⌘R reprints only circled frames for a second pass.
