@@ -54,7 +54,7 @@ struct LaunchView: View {
     @State private var summaries: [URL: ShootSummary] = [:]
 
     private var recents: [URL] { Array(app.recents.prefix(6)) }
-    private var available: [URL] { recents.filter { FileManager.default.fileExists(atPath: $0.path) } }
+    private var available: [URL] { recents.filter { app.status(of: $0) == .available } }
     /// The shoot on the right: the one last hovered, else the most recent one still on disk.
     private var previewed: URL? { hovered ?? available.first }
 
@@ -113,22 +113,23 @@ struct LaunchView: View {
             Spacer(minLength: 56)
 
             if !recents.isEmpty {
-                RecentShoots(urls: recents, summaries: summaries, hovered: $hovered, isOverList: $isOverList) { app.open($0) }
+                RecentShoots(urls: recents, summaries: summaries, hovered: $hovered, isOverList: $isOverList)
             }
         }
         .padding(.horizontal, 56)
         .padding(.top, 28)
         .padding(.bottom, 44)
+        .onAppear { app.refreshRecents() }
     }
 }
 
 @MainActor
 private struct RecentShoots: View {
+    @Environment(AppModel.self) private var app
     let urls: [URL]
     let summaries: [URL: ShootSummary]
     @Binding var hovered: URL?
     @Binding var isOverList: Bool
-    let open: (URL) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -141,8 +142,23 @@ private struct RecentShoots: View {
             .padding(.bottom, 10)
             Hairline(color: Theme.paper.opacity(0.4))
             ForEach(Array(urls.enumerated()), id: \.element) { index, url in
-                RecentRow(url: url, number: index + 1, frames: summaries[url]?.frames, dimmed: isOverList && hovered != url) { open(url) }
-                    .onHover { if $0 { hovered = url } }
+                let status = app.status(of: url)
+                RecentRow(url: url, number: index + 1, status: status, frames: summaries[url]?.frames, dimmed: isOverList && hovered != url)
+                    // Only a shoot that's there can be previewed; a missing one would leave the photo side blank.
+                    .onHover { if $0, status == .available { hovered = url } }
+                    .contextMenu {
+                        if status == .available {
+                            Button("Open") { app.open(url) }
+                            Button("Show in Finder") { NSWorkspace.shared.activateFileViewerSelecting([url]) }
+                        } else {
+                            Button("Locate…") { app.locate(url) }
+                        }
+                        Divider()
+                        Button("Remove from Recents") {
+                            if hovered == url { hovered = nil }
+                            app.forget(url)
+                        }
+                    }
                 Hairline()
             }
         }
@@ -150,20 +166,23 @@ private struct RecentShoots: View {
     }
 }
 
-/// One shoot as an index entry: number, name set large and light, frame count.
+/// One shoot as an index entry: number, name set large and light, frame count. A shoot that isn't where it was
+/// says why, and clicking it asks where it went.
 @MainActor
 private struct RecentRow: View {
+    @Environment(AppModel.self) private var app
     let url: URL
     let number: Int
+    let status: ShootLocation.Status
     let frames: Int?
     /// Another row is under the cursor; this one steps back, like the A24 index.
     let dimmed: Bool
-    let open: () -> Void
+    @State private var isHovering = false
 
     var body: some View {
-        let available = FileManager.default.fileExists(atPath: url.path)
+        let available = status == .available
         let strength: Double = !available ? 0.35 : dimmed ? 0.32 : 1
-        Button(action: open) {
+        Button { app.open(url) } label: {
             HStack(alignment: .firstTextBaseline, spacing: 0) {
                 CatalogueIndex(number: number, color: Theme.paper.opacity(0.55 * strength))
                     .frame(width: 56, alignment: .leading)
@@ -177,15 +196,20 @@ private struct RecentRow: View {
                         .monospacedDigit()
                         .foregroundStyle(Theme.paper.opacity(0.7 * strength))
                 } else {
-                    CatalogueLabel("Drive not connected", size: 10, color: Theme.paper.opacity(0.45))
+                    CatalogueLabel(isHovering ? "Locate…" : unavailableReason, size: 10, color: Theme.paper.opacity(isHovering ? 0.9 : 0.45))
                 }
             }
             .padding(.vertical, 16)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .disabled(!available)
-        .help(url.path)
+        .onHover { isHovering = $0 }
+        .help(available ? url.path : "\(unavailableReason): \(url.path)")
+    }
+
+    private var unavailableReason: String {
+        if case .driveNotConnected = status { return "Drive not connected" }
+        return "Moved or renamed"
     }
 
     /// The A24 two-tone title: the name in full ink, " - " and whatever follows (usually the month) stepped back.

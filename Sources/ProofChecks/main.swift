@@ -189,6 +189,20 @@ check(exists(root, "Ricoh/JPEG/R0000001.JPG") && exists(root, "Ricoh/R0000002.DN
 check(!exists(root, "Selects") && !exists(root, "reject"), "empty Selects/ and reject/ removed")
 check(rating(root.appending(path: "00003502/000035020002.jpg")).isEmpty, "rating cleared on the way out")
 
+// MARK: Recent shoots
+
+print("Recent shoots")
+let renamed = root.deletingLastPathComponent().appending(path: "Renamed Shoot - 2024")
+let bookmark = ShootLocation.bookmark(for: root)
+check(ShootLocation.status(of: root) == .available, "a shoot on disk is available")
+try! FileManager.default.moveItem(at: root, to: renamed)
+check(ShootLocation.status(of: root) == .missing, "a renamed shoot is missing, not on an unplugged drive")
+check(bookmark.flatMap(ShootLocation.resolve)?.standardizedFileURL.path == renamed.standardizedFileURL.path, "the bookmark follows the rename")
+check(ShootLocation.nearestExistingAncestor(of: root)?.standardizedFileURL.path == root.deletingLastPathComponent().standardizedFileURL.path,
+      "locating starts in the folder it was in")
+check(ShootLocation.status(of: URL(fileURLWithPath: "/Volumes/No Such Drive 7f3a/Cancun - Mar 2024")) == .driveNotConnected(volume: "No Such Drive 7f3a"),
+      "a path on an unmounted drive says so")
+
 try? FileManager.default.removeItem(at: root.deletingLastPathComponent())
 print(failures == 0 ? "\nAll checks passed." : "\n\(failures) check(s) failed.")
 exit(failures == 0 ? 0 : 1)
