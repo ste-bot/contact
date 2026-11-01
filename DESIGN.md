@@ -243,6 +243,9 @@ Seeded hand-drawn strokes in safelight red: a wobbling, overshooting loop (selec
 ### Wax-Box Mark and Lock-up
 The mark is a box drawn in wax pencil, path data in `Resources/Brand/wax-box.json`, in wax white with seeded grain above 60pt. The lock-up sets it beside "CONTACT" (gap 0.24× size, mark 0.82×0.96× size); the box never stands in for a letter. Alone at 92×108pt it heads the empty states.
 
+### App Icon
+A frame of colour film close up on the standard macOS tile, with no hand-drawn element: film black, bench-black sprocket holes along both edges, and one 3:2 frame with its neighbours showing as slivers either side. The frames hold the demo shoot's dusk landscape: a peach sky, a pale sun and three green hills. The edge print is in edge orange, the one place orange appears outside the sheet: `12 ▶` and `12A` above the frame, and ■■ flanks with CONTACT below it, set in the wordmark cut where stock prints its maker. It's drawn by `scripts/make-icon.swift`, which `build-app.sh` reruns whenever the script changes.
+
 ### Edge Print
 Per-camera edge printing in the film rebate, in the roll's ink (colour-stock orange or mono white): Ricoh in Doto, Leica in Host Grotesk with a hairline, lab film in Archivo with ■■ flanks and a barcode. These faces live on the film only.
 

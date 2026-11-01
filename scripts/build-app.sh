@@ -18,15 +18,15 @@ if (( ${#fonts} )); then
   cp Resources/Fonts/* "$APP/Contents/Resources/Fonts/"
 fi
 
-# The CONTACT mark, shared by the app and the icon.
+# The CONTACT mark, drawn beside the wordmark in the app.
 mkdir -p "$APP/Contents/Resources/Brand"
 cp Resources/Brand/wax-box.json "$APP/Contents/Resources/Brand/"
 
-# Icon: render when missing or when the mark changes, then cache in Resources/.
-if [[ ! -f Resources/AppIcon.icns || Resources/Brand/wax-box.json -nt Resources/AppIcon.icns || scripts/make-icon.swift -nt Resources/AppIcon.icns ]]; then
+# Icon: render when missing or when the script changes, then cache in Resources/.
+if [[ ! -f Resources/AppIcon.icns || scripts/make-icon.swift -nt Resources/AppIcon.icns ]]; then
   ICONSET=$(mktemp -d)/AppIcon.iconset
   mkdir -p "$ICONSET"
-  swift scripts/make-icon.swift "$ICONSET/icon_512x512@2x.png" Resources/Brand/wax-box.json
+  swift scripts/make-icon.swift "$ICONSET/icon_512x512@2x.png" "Resources/Fonts/Archivo[wdth,wght].ttf"
   for s in 16 32 128 256 512; do
     sips -z $s $s "$ICONSET/icon_512x512@2x.png" --out "$ICONSET/icon_${s}x${s}.png" >/dev/null
     sips -z $((s * 2)) $((s * 2)) "$ICONSET/icon_512x512@2x.png" --out "$ICONSET/icon_${s}x${s}@2x.png" >/dev/null

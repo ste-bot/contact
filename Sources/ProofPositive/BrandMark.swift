@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// The CONTACT mark: a box drawn in wax pencil. The strokes live in Resources/Brand/wax-box.json,
-/// shared with scripts/make-icon.swift so the app icon and the in-app mark are the same drawing.
+/// The CONTACT mark: a box drawn in wax pencil, beside the wordmark in the app. The strokes live in
+/// Resources/Brand/wax-box.json. (The app icon is a film frame, drawn by scripts/make-icon.swift.)
 enum WaxBox {
     struct Data: Decodable {
         let grid: CGFloat

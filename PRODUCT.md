@@ -28,6 +28,7 @@ The contact sheet is the interface. Folders become rolls (lab rolls by filename,
 ## Brand commitments
 
 - Name: CONTACT. Mark: a box drawn in wax pencil, shared as path data in `Resources/Brand/wax-box.json`; the wordmark is typeset Archivo ExtraCondensed Black beside it, never with the box standing in for a letter.
+- App icon: a frame of colour film close up, with no hand-drawn element. The frame holds the demo shoot's dusk landscape, with sprocket holes along both edges and edge print in colour-stock orange (`12 ▶`, `12A`). CONTACT, set in the wordmark cut, sits where stock prints its maker. It's drawn by `scripts/make-icon.swift`.
 - No handwriting typeface; the drawn marks are the only handwriting.
 - Colour: black and white. Red belongs to the pencil marks only; no red buttons or fields.
 - Direction: brutalist, bold, editorial (Magnum Contact Sheets, A24, Analogue, Swiss catalogue layouts). No glow, gradients-as-decoration or rounded softness.
